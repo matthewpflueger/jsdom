@@ -66,7 +66,7 @@ global.debug = function(val) {
 // End Compat Layer
 
 var suites = {
-  "level1/core" : { cases: require("./level1/core").tests, setUp : function() {
+/*  "level1/core" : { cases: require("./level1/core").tests, setUp : function() {
       mixin(global, require("../lib/jsdom/level1/core").dom.level1.core);
       global.builder.contentType   = "text/xml";
       global.builder.type          = "xml";
@@ -92,7 +92,15 @@ var suites = {
       global.builder.type          = "xml";
       global.builder.testDirectory = "level2/core";
     }
-  },
+  }, */
+  "level2/events" : { cases: require("./level2/events").tests, setUp : function() {
+      //global.dom = require(__dirname + "/../lib/jsdom/level2/core").dom.level2.core;
+      mixin(global, require("../lib/jsdom/level2/events").dom.level2.events);
+      global.builder.contentType   = "text/xml";
+      global.builder.type          = "xml";
+      global.builder.testDirectory = "level2/events";
+    }
+  }/*,
   "browser"     : { cases: require("./browser").tests, setUp : function() {
       global.dom = require(__dirname + "/../lib/jsdom/level1/core").dom.level1.core;
       global.browser = require(__dirname + "/../lib/jsdom/browser").browserAugmentation(dom);
@@ -117,7 +125,7 @@ var suites = {
       global.builder.type          = "html";
       global.builder.testDirectory = "browser";
     }
-  }
+  }*/
   /*
     Ignoring for now..
   "level2/html" : { cases: require("./level2/html").tests, setUp : function() {
