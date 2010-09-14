@@ -142,6 +142,7 @@ DocumentEventCast01 : function () {
       }
       doc = load(docRef, "doc", "hc_staff");
       docEvent =  doc;
+      sys.log("Passed DocumentEventCast01 - Document implments DocumentEvent interface");
 },
 /**
 * 
@@ -163,6 +164,7 @@ EventTargetCast01 : function () {
       }
       doc = load(docRef, "doc", "hc_staff");
       target =  doc;
+      sys.log("Passed EventTargetCast01 - Document implements EventTarget interface");
 
 },
 /**
