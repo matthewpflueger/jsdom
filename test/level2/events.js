@@ -1,4 +1,5 @@
 var sys = require('sys');
+var events = require("../../lib/jsdom/level2/events").dom.level2.events;
 
 
 
@@ -116,8 +117,29 @@ target = evt.currentTarget;
    }
 
 
-
-
+var EventMonitor = function() {
+    self = this;
+    self.atEvents = new Array();
+    self.bubbledEvents = new Array();
+    self.capturedEvents = new Array();
+    self.handleEvent = {
+        handleEvent: function(event) {
+            switch(event.eventPhase) {
+                case event.CAPTURING_PHASE: 
+                    self.capturedEvents.push(event);
+                    break;
+                case event.AT_TARGET: 
+                    self.atEvents.push(event);
+                    break;
+                case event.BUBBLING_PHASE: 
+                    self.bubbledEvents.push(event);
+                    break;
+                default:
+                    throw new events.EventException(0, "Unspecified event phase");
+            }
+        }
+    };
+};
 
 
 
@@ -142,7 +164,8 @@ DocumentEventCast01 : function () {
       }
       doc = load(docRef, "doc", "hc_staff");
       docEvent =  doc;
-      sys.log("Passed DocumentEventCast01 - Document implments DocumentEvent interface");
+      assertTrue("Document does not have createEvent function", (docEvent.createEvent instanceof Function));
+      sys.log("PASSED DocumentEventCast01 - A document is created using implementation.createDocument and cast to a DocumentEvent interface.");
 },
 /**
 * 
@@ -164,7 +187,8 @@ EventTargetCast01 : function () {
       }
       doc = load(docRef, "doc", "hc_staff");
       target =  doc;
-      sys.log("Passed EventTargetCast01 - Document implements EventTarget interface");
+      assertTrue("Document is not instanceof EventTarget", (target instanceof events.EventTarget));
+      sys.log("PASSED EventTargetCast01 - A document is created using implementation.createDocument and cast to a EventTarget interface.");
 
 },
 /**
@@ -188,7 +212,8 @@ createEvent01 : function () {
       doc = load(docRef, "doc", "hc_staff");
       event = doc.createEvent("Events");
       assertNotNull("notnull",event);
-      sys.log("Passed createEvent01 - supposedly supporting Events????");
+      assertTrue("event not instanceof Event", (event instanceof events.Event));
+      sys.log("PASSED createEvent01 - An object implementing the Event interface is created by using DocumentEvent.createEvent method with eventType equals \"Events\".");
 
 },
 /**
@@ -213,7 +238,8 @@ createEvent02 : function () {
       doc = load(docRef, "doc", "hc_staff");
       event = doc.createEvent("MutationEvents");
       assertNotNull("notnull",event);
-      sys.log("Passed createEvent02 - supposedly supporting MutationEvents????");
+      assertTrue("event not instanceof MutationEvent", (event instanceof events.MutationEvent));
+      sys.log("PASSED createEvent02 - An object implementing the Event interface is created by using DocumentEvent.createEvent method with eventType equals \"MutationEvents\".  Only applicable if implementation supports MutationEvents.");
 
 },
 /**
@@ -238,14 +264,14 @@ createEvent03 : function () {
       doc = load(docRef, "doc", "hc_staff");
       event = doc.createEvent("UIEvents");
       assertNotNull("notnull",event);
-      sys.log("Passed createEvent03 - supposedly supporting UIEvents????");
-
+      assertTrue("event not instanceof UIEvent", (event instanceof events.UIEvent));
+      sys.log("PASSED createEvent03 - An object implementing the Event interface is created by using DocumentEvent.createEvent method with eventType equals \"UIEvents\".  Only applicable if implementation supports the \"UIEvents\" feature.");
 },
 /**
 * 
 An object implementing the Event interface is created by using 
-DocumentEvent.createEvent method with eventType equals "UIEvents".
-Only applicable if implementation supports the "UIEvents" feature.
+DocumentEvent.createEvent method with eventType equals "MouseEvents".
+Only applicable if implementation supports the "MouseEvents" feature.
 
 * @author Curt Arnold
 * @see http://www.w3.org/TR/DOM-Level-2-Events/events#Events-DocumentEvent-createEvent
@@ -263,7 +289,8 @@ createEvent04 : function () {
       doc = load(docRef, "doc", "hc_staff");
       event = doc.createEvent("MouseEvents");
       assertNotNull("notnull",event);
-      sys.log("Passed createEvent04 - supposedly supporting MouseEvents????");
+      assertTrue("event not instanceof MouseEvent", (event instanceof events.MouseEvent));
+      sys.log("PASSED createEvent04 - An object implementing the Event interface is created by using DocumentEvent.createEvent method with eventType equals \"MouseEvents\".  Only applicable if implementation supports the \"MouseEvents\" feature.");
 
 },
 /**
@@ -288,7 +315,8 @@ createEvent05 : function () {
       doc = load(docRef, "doc", "hc_staff");
       event = doc.createEvent("HTMLEvents");
       assertNotNull("notnull",event);
-      sys.log("Passed createEvent05 - supposedly supporting HTMLEvents????");
+      assertTrue("event not instanceof HTMLEvent", (event instanceof events.HTMLEvent));
+      sys.log("PASSED createEvent05 - An object implementing the Event interface is created by using DocumentEvent.createEvent method with eventType equals \"HTMLEvents\".  Only applicable if implementation supports the \"HTMLEvents\" feature.");
 
 },
 /**
@@ -325,7 +353,7 @@ dispatchEvent01 : function () {
       }
       assertTrue("throw_ImplException", success);
 	}
-      sys.log("Passed dispatchEvent01 - A null reference is passed to EventTarget.dispatchEvent(), should raise implementation or platform exception.");
+      sys.log("PASSED dispatchEvent01 - A null reference is passed to EventTarget.dispatchEvent(), should raise implementation or platform exception.");
       
 },
 /**
@@ -363,7 +391,7 @@ dispatchEvent02 : function () {
 		assertTrue("throw_UNSPECIFIED_EVENT_TYPE_ERR",success);
 	}
 
-    sys.log("Passed dispatchEvent02 - An created but not initialized Events event is passed to EventTarget.dispatchEvent().  Should raise UNSPECIFIED_EVENT_TYPE_ERR EventException.");
+    sys.log("PASSED dispatchEvent02 - An created but not initialized Events event is passed to EventTarget.dispatchEvent().  Should raise UNSPECIFIED_EVENT_TYPE_ERR EventException.");
 },
 /**
 * 
@@ -399,7 +427,7 @@ dispatchEvent03 : function () {
 		}
 		assertTrue("throw_UNSPECIFIED_EVENT_TYPE_ERR",success);
 	}
-    sys.log("Passed dispatchEvent03 - An created but not initialized MutationEvents event is passed to EventTarget.dispatchEvent().  Should raise UNSPECIFIED_EVENT_TYPE_ERR EventException.");
+    sys.log("PASSED dispatchEvent03 - An created but not initialized MutationEvents event is passed to EventTarget.dispatchEvent().  Should raise UNSPECIFIED_EVENT_TYPE_ERR EventException.");
 
 },
 /**
@@ -436,7 +464,7 @@ dispatchEvent04 : function () {
 		}
 		assertTrue("throw_UNSPECIFIED_EVENT_TYPE_ERR",success);
 	}
-    sys.log("Passed dispatchEvent04 - An created but not initialized UIEvents event is passed to EventTarget.dispatchEvent().  Should raise UNSPECIFIED_EVENT_TYPE_ERR EventException.");
+    sys.log("PASSED dispatchEvent04 - An created but not initialized UIEvents event is passed to EventTarget.dispatchEvent().  Should raise UNSPECIFIED_EVENT_TYPE_ERR EventException.");
 
 },
 /**
@@ -473,7 +501,7 @@ dispatchEvent05 : function () {
 		}
 		assertTrue("throw_UNSPECIFIED_EVENT_TYPE_ERR",success);
 	}
-    sys.log("Passed dispatchEvent05 - An created but not initialized MouseEvents event is passed to EventTarget.dispatchEvent().  Should raise UNSPECIFIED_EVENT_TYPE_ERR EventException.");
+    sys.log("PASSED dispatchEvent05 - An created but not initialized MouseEvents event is passed to EventTarget.dispatchEvent().  Should raise UNSPECIFIED_EVENT_TYPE_ERR EventException.");
 
 },
 /**
@@ -510,7 +538,7 @@ dispatchEvent06 : function () {
 		}
 		assertTrue("throw_UNSPECIFIED_EVENT_TYPE_ERR",success);
 	}
-    sys.log("Passed dispatchEvent06 - An created but not initialized HTMLEvents event is passed to EventTarget.dispatchEvent().  Should raise UNSPECIFIED_EVENT_TYPE_ERR EventException.");
+    sys.log("PASSED dispatchEvent06 - An created but not initialized HTMLEvents event is passed to EventTarget.dispatchEvent().  Should raise UNSPECIFIED_EVENT_TYPE_ERR EventException.");
 
 },
 /**
@@ -548,7 +576,7 @@ dispatchEvent07 : function () {
 		}
 		assertTrue("throw_UNSPECIFIED_EVENT_TYPE_ERR",success);
 	}
-      sys.log("Passed dispatchEvent07 - A Events event initialized with a empty name is passed to EventTarget.dispatchEvent().  Should raise UNSPECIFIED_EVENT_TYPE_ERR EventException.");
+      sys.log("PASSED dispatchEvent07 - A Events event initialized with a empty name is passed to EventTarget.dispatchEvent().  Should raise UNSPECIFIED_EVENT_TYPE_ERR EventException.");
 
 },
 /**
