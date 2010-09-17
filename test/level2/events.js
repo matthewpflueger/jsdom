@@ -165,7 +165,6 @@ DocumentEventCast01 : function () {
       doc = load(docRef, "doc", "hc_staff");
       docEvent =  doc;
       assertTrue("Document does not have createEvent function", (docEvent.createEvent instanceof Function));
-      sys.log("PASSED DocumentEventCast01 - A document is created using implementation.createDocument and cast to a DocumentEvent interface.");
 },
 /**
 * 
@@ -188,8 +187,6 @@ EventTargetCast01 : function () {
       doc = load(docRef, "doc", "hc_staff");
       target =  doc;
       assertTrue("Document is not instanceof EventTarget", (target instanceof events.EventTarget));
-      sys.log("PASSED EventTargetCast01 - A document is created using implementation.createDocument and cast to a EventTarget interface.");
-
 },
 /**
 * 
@@ -213,8 +210,6 @@ createEvent01 : function () {
       event = doc.createEvent("Events");
       assertNotNull("notnull",event);
       assertTrue("event not instanceof Event", (event instanceof events.Event));
-      sys.log("PASSED createEvent01 - An object implementing the Event interface is created by using DocumentEvent.createEvent method with eventType equals \"Events\".");
-
 },
 /**
 * 
@@ -239,8 +234,6 @@ createEvent02 : function () {
       event = doc.createEvent("MutationEvents");
       assertNotNull("notnull",event);
       assertTrue("event not instanceof MutationEvent", (event instanceof events.MutationEvent));
-      sys.log("PASSED createEvent02 - An object implementing the Event interface is created by using DocumentEvent.createEvent method with eventType equals \"MutationEvents\".  Only applicable if implementation supports MutationEvents.");
-
 },
 /**
 * 
@@ -265,7 +258,6 @@ createEvent03 : function () {
       event = doc.createEvent("UIEvents");
       assertNotNull("notnull",event);
       assertTrue("event not instanceof UIEvent", (event instanceof events.UIEvent));
-      sys.log("PASSED createEvent03 - An object implementing the Event interface is created by using DocumentEvent.createEvent method with eventType equals \"UIEvents\".  Only applicable if implementation supports the \"UIEvents\" feature.");
 },
 /**
 * 
@@ -290,8 +282,6 @@ createEvent04 : function () {
       event = doc.createEvent("MouseEvents");
       assertNotNull("notnull",event);
       assertTrue("event not instanceof MouseEvent", (event instanceof events.MouseEvent));
-      sys.log("PASSED createEvent04 - An object implementing the Event interface is created by using DocumentEvent.createEvent method with eventType equals \"MouseEvents\".  Only applicable if implementation supports the \"MouseEvents\" feature.");
-
 },
 /**
 * 
@@ -316,8 +306,6 @@ createEvent05 : function () {
       event = doc.createEvent("HTMLEvents");
       assertNotNull("notnull",event);
       assertTrue("event not instanceof HTMLEvent", (event instanceof events.HTMLEvent));
-      sys.log("PASSED createEvent05 - An object implementing the Event interface is created by using DocumentEvent.createEvent method with eventType equals \"HTMLEvents\".  Only applicable if implementation supports the \"HTMLEvents\" feature.");
-
 },
 /**
 * 
@@ -353,8 +341,6 @@ dispatchEvent01 : function () {
       }
       assertTrue("throw_ImplException", success);
 	}
-      sys.log("PASSED dispatchEvent01 - A null reference is passed to EventTarget.dispatchEvent(), should raise implementation or platform exception.");
-      
 },
 /**
 * 
@@ -390,8 +376,6 @@ dispatchEvent02 : function () {
 		}
 		assertTrue("throw_UNSPECIFIED_EVENT_TYPE_ERR",success);
 	}
-
-    sys.log("PASSED dispatchEvent02 - An created but not initialized Events event is passed to EventTarget.dispatchEvent().  Should raise UNSPECIFIED_EVENT_TYPE_ERR EventException.");
 },
 /**
 * 
@@ -427,8 +411,6 @@ dispatchEvent03 : function () {
 		}
 		assertTrue("throw_UNSPECIFIED_EVENT_TYPE_ERR",success);
 	}
-    sys.log("PASSED dispatchEvent03 - An created but not initialized MutationEvents event is passed to EventTarget.dispatchEvent().  Should raise UNSPECIFIED_EVENT_TYPE_ERR EventException.");
-
 },
 /**
 * 
@@ -464,8 +446,6 @@ dispatchEvent04 : function () {
 		}
 		assertTrue("throw_UNSPECIFIED_EVENT_TYPE_ERR",success);
 	}
-    sys.log("PASSED dispatchEvent04 - An created but not initialized UIEvents event is passed to EventTarget.dispatchEvent().  Should raise UNSPECIFIED_EVENT_TYPE_ERR EventException.");
-
 },
 /**
 * 
@@ -501,8 +481,6 @@ dispatchEvent05 : function () {
 		}
 		assertTrue("throw_UNSPECIFIED_EVENT_TYPE_ERR",success);
 	}
-    sys.log("PASSED dispatchEvent05 - An created but not initialized MouseEvents event is passed to EventTarget.dispatchEvent().  Should raise UNSPECIFIED_EVENT_TYPE_ERR EventException.");
-
 },
 /**
 * 
@@ -538,8 +516,6 @@ dispatchEvent06 : function () {
 		}
 		assertTrue("throw_UNSPECIFIED_EVENT_TYPE_ERR",success);
 	}
-    sys.log("PASSED dispatchEvent06 - An created but not initialized HTMLEvents event is passed to EventTarget.dispatchEvent().  Should raise UNSPECIFIED_EVENT_TYPE_ERR EventException.");
-
 },
 /**
 * 
@@ -576,8 +552,6 @@ dispatchEvent07 : function () {
 		}
 		assertTrue("throw_UNSPECIFIED_EVENT_TYPE_ERR",success);
 	}
-      sys.log("PASSED dispatchEvent07 - A Events event initialized with a empty name is passed to EventTarget.dispatchEvent().  Should raise UNSPECIFIED_EVENT_TYPE_ERR EventException.");
-
 },
 /**
 * 
@@ -619,8 +593,6 @@ bubbledEvents = monitor.bubbledEvents;
 assertSize("bubbleCount",0,bubbledEvents);
 capturedEvents = monitor.capturedEvents;
 assertSize("captureCount",0,capturedEvents);
-sys.log("PASSED dispatchEvent08 - An EventListener registered on the target node with capture false, should recieve any event fired on that node.");
-
 },
 /**
 * 
@@ -662,7 +634,6 @@ bubbledEvents = monitor.bubbledEvents;
 assertSize("bubbleCount",0,bubbledEvents);
 capturedEvents = monitor.capturedEvents;
 assertSize("captureCount",0,capturedEvents);
-sys.log("PASSED dispatchEvent09 - An event is dispatched to the document with a capture listener attached.  A capturing EventListener will not be triggered by events dispatched directly to the EventTarget upon which it is registered.");
 },
 /**
 * 
@@ -705,8 +676,6 @@ bubbledEvents = monitor.bubbledEvents;
 assertSize("bubbleCount",0,bubbledEvents);
 capturedEvents = monitor.capturedEvents;
 assertSize("captureCount",0,capturedEvents);
-sys.log("PASSED dispatchEvent10 - The same monitor is registered twice and an event is dispatched.  The monitor should recieve only one handleEvent call.");
-
 },
 /**
 * 
@@ -742,8 +711,6 @@ dispatchEvent11 : function () {
       preventDefault = doc.dispatchEvent(evt);
       events = monitor.allEvents;
 assertSize("eventCount",0,events);
-sys.log("PASSED dispatchEvent11 - The same monitor is registered twice, removed once, and an event is dispatched.  The monitor should recieve only no handleEvent calls.");
-
 },
 
 /**
@@ -784,8 +751,6 @@ dispatchEvent12 : function () {
       preventDefault = doc.dispatchEvent(evt);
       events = monitor.allEvents;
 assertSize("eventCount",1,events);
-sys.log("PASSED dispatchEvent12 - A monitor is added, multiple calls to removeEventListener are mde with similar but not identical arguments, and an event is dispatched.  The monitor should recieve handleEvent calls.");
-
 },
 /**
 * 
@@ -826,8 +791,6 @@ doc.addEventListener("foo", listener1.handleEvent, false);
       evt.initEvent("foo",true,false);
       preventDefault = doc.dispatchEvent(evt);
       assertSize("eventCount",1,events);
-      sys.log("PASSED dispatchEvent13 - Two listeners are registered on the same target, each of which will remove both itself and the other on the first event.  Only one should see the event since event listeners can never be invoked after being removed.");
-
 },
 /**
 * 
@@ -866,8 +829,6 @@ event.initEvent(expectedEventType,expectedCanBubble,expectedCancelable);
        actualCanBubble = event.bubbles;
 
       assertEquals("canBubble",expectedCanBubble,actualCanBubble);
-       
-      sys.log("PASSED initEvent01 - The Event.initEvent method is called for event returned by DocumentEvent.createEvent(\"events\") and the state is checked to see if it reflects the parameters.");
 },
 /**
 * 
@@ -906,8 +867,6 @@ event.initEvent(expectedEventType,expectedCanBubble,expectedCancelable);
        actualCanBubble = event.bubbles;
 
       assertEquals("canBubble",expectedCanBubble,actualCanBubble);
-      sys.log("PASSED initEvent02 - The Event.initEvent method is called for event returned by DocumentEvent.createEvent(\"events\") and the state is checked to see if it reflects the parameters.");
-       
 },
 /**
 * 
@@ -955,8 +914,6 @@ event.initEvent("rotate",true,true);
        actualCanBubble = event.bubbles;
 
       assertEquals("canBubble2",false,actualCanBubble);
-      sys.log("PASSED initEvent03 - The Event.initEvent method is called for event returned by DocumentEvent.createEvent(\"events\") and the state is checked to see if it reflects the parameters.  initEvent may be called multiple times and the last time is definitive.");
-       
 },
 /**
 * 
@@ -996,8 +953,6 @@ event.initEvent(expectedEventType,expectedCanBubble,expectedCancelable);
        actualCanBubble = event.bubbles;
 
       assertEquals("canBubble",expectedCanBubble,actualCanBubble);
-      sys.log("PASSED initEvent04 - The Event.initEvent method is called for event returned by DocumentEvent.createEvent(\"MutationEvents\") and the state is checked to see if it reflects the parameters.");
-       
 },
 /**
 * 
@@ -1037,8 +992,6 @@ event.initEvent(expectedEventType,expectedCanBubble,expectedCancelable);
        actualCanBubble = event.bubbles;
 
       assertEquals("canBubble",expectedCanBubble,actualCanBubble);
-      sys.log("PASSED initEvent05 - The Event.initEvent method is called for event returned by DocumentEvent.createEvent(\"MutationEvents\") and the state is checked to see if it reflects the parameters.");
-       
 },
 /**
 * 
@@ -1087,7 +1040,5 @@ event.initEvent("rotate",true,true);
        actualCanBubble = event.bubbles;
 
       assertEquals("canBubble2",false,actualCanBubble);
-      sys.log("PASSED initEvent06 - The Event.initEvent method is called for event returned by DocumentEvent.createEvent(\"MutationEvents\") and the state is checked to see if it reflects the parameters.  initEvent may be called multiple times and the last time is definitive.");
-       
 }
 }
