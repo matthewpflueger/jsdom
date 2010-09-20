@@ -124,20 +124,28 @@ var EventMonitor = function() {
     self.capturedEvents = [];
     self.allEvents = [];
     self.handleEvent = function(event) {
+        sys.log("self: " + sys.inspect(self));
+        sys.log("event.currentTarget.nodeName: " + sys.inspect(event.currentTarget.nodeName));
         self.allEvents.push(event);
         switch(event.eventPhase) {
             case event.CAPTURING_PHASE: 
+                sys.log("CAPTURING_PHASE");
                 self.capturedEvents.push(event);
                 break;
             case event.AT_TARGET: 
+                sys.log("AT_TARGET");
                 self.atEvents.push(event);
+                sys.log("atEvents: " + sys.inspect(self.atEvents));
                 break;
             case event.BUBBLING_PHASE: 
+                sys.log("BUBBLING_PHASE");
                 self.bubbledEvents.push(event);
                 break;
             default:
+                sys.log("Unspecified event phase!!!");
                 throw new events.EventException(0, "Unspecified event phase");
         }
+        sys.log("self: " + sys.inspect(self));
     };
 };
 
@@ -1040,5 +1048,37 @@ event.initEvent("rotate",true,true);
        actualCanBubble = event.bubbles;
 
       assertEquals("canBubble2",false,actualCanBubble);
+},
+
+captureEvent02: function() {
+    sys.log("In captureEvent02");
+    var success;
+    if(checkInitialization(builder, "captureEvent02") != null) return;
+    var doc;
+    var target;
+    var evt;
+    var preventDefault;
+    var monitor = new EventMonitor();
+    
+    var docRef = null;
+    if (typeof(this.doc) != 'undefined') {
+        docRef = this.doc;
+    }
+
+    doc = load(docRef, "doc", "hc_staff");
+    var plist = doc.getElementsByTagName("p");
+    plist.item(0).addEventListener("foo", monitor.handleEvent, true);
+    plist.item(0).firstChild.addEventListener("foo", monitor.handleEvent, false);
+	evt = doc.createEvent("Events");
+    evt.initEvent("foo",true,false);
+    preventDefault = doc.dispatchEvent(evt);
+
+    sys.log("allEvents: " + sys.inspect(monitor.allEvents));
+    sys.log("atEvents: " + sys.inspect(monitor.atEvents));
+    assertSize("atCount",1,monitor.atEvents);
+    sys.log("bubbledEvents: " + monitor.bubbledEvents);
+    assertSize("bubbleCount",0,monitor.bubbledEvents);
+    sys.log("captureCount: " + monitor.capturedEvents);
+    assertSize("captureCount",1,monitor.capturedEvents);
 }
 }
