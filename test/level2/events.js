@@ -124,28 +124,20 @@ var EventMonitor = function() {
     self.capturedEvents = [];
     self.allEvents = [];
     self.handleEvent = function(event) {
-        sys.log("self: " + sys.inspect(self));
-        sys.log("event.currentTarget.nodeName: " + sys.inspect(event.currentTarget.nodeName));
         self.allEvents.push(event);
         switch(event.eventPhase) {
             case event.CAPTURING_PHASE: 
-                sys.log("CAPTURING_PHASE");
                 self.capturedEvents.push(event);
                 break;
             case event.AT_TARGET: 
-                sys.log("AT_TARGET");
                 self.atEvents.push(event);
-                sys.log("atEvents: " + sys.inspect(self.atEvents));
                 break;
             case event.BUBBLING_PHASE: 
-                sys.log("BUBBLING_PHASE");
                 self.bubbledEvents.push(event);
                 break;
             default:
-                sys.log("Unspecified event phase!!!");
                 throw new events.EventException(0, "Unspecified event phase");
         }
-        sys.log("self: " + sys.inspect(self));
     };
 };
 
@@ -1050,10 +1042,12 @@ event.initEvent("rotate",true,true);
       assertEquals("canBubble2",false,actualCanBubble);
 },
 
-captureEvent02: function() {
-    sys.log("In captureEvent02");
+/*
+ * All capturing listeners in a direct line from dispatched node will receive the event
+ */
+captureEvent01: function() {
     var success;
-    if(checkInitialization(builder, "captureEvent02") != null) return;
+    if(checkInitialization(builder, "captureEvent01") != null) return;
     var doc;
     var target;
     var evt;
@@ -1071,14 +1065,281 @@ captureEvent02: function() {
     plist.item(0).firstChild.addEventListener("foo", monitor.handleEvent, false);
 	evt = doc.createEvent("Events");
     evt.initEvent("foo",true,false);
-    preventDefault = doc.dispatchEvent(evt);
+    preventDefault = plist.item(0).firstChild.dispatchEvent(evt);
 
-    sys.log("allEvents: " + sys.inspect(monitor.allEvents));
-    sys.log("atEvents: " + sys.inspect(monitor.atEvents));
     assertSize("atCount",1,monitor.atEvents);
-    sys.log("bubbledEvents: " + monitor.bubbledEvents);
     assertSize("bubbleCount",0,monitor.bubbledEvents);
-    sys.log("captureCount: " + monitor.capturedEvents);
+    assertSize("captureCount",1,monitor.capturedEvents);
+},
+
+/*
+ * All non-capturing listeners in a direct line from dispatched node will receive a bubbling event
+ */
+bubbleEvent01: function() {
+    var success;
+    if(checkInitialization(builder, "bubbleEvent01") != null) return;
+    var doc;
+    var target;
+    var evt;
+    var preventDefault;
+    var monitor = new EventMonitor();
+    
+    var docRef = null;
+    if (typeof(this.doc) != 'undefined') {
+        docRef = this.doc;
+    }
+
+    doc = load(docRef, "doc", "hc_staff");
+    var plist = doc.getElementsByTagName("p");
+    plist.item(0).addEventListener("foo", monitor.handleEvent, false);
+    plist.item(0).firstChild.addEventListener("foo", monitor.handleEvent, false);
+	evt = doc.createEvent("Events");
+    evt.initEvent("foo",true,false);
+    preventDefault = plist.item(0).firstChild.dispatchEvent(evt);
+
+    assertSize("atCount",1,monitor.atEvents);
+    assertSize("bubbleCount",1,monitor.bubbledEvents);
+    assertSize("captureCount",0,monitor.capturedEvents);
+},
+
+/*
+ * Calling stopPropagation on an event will prevent the target from receiving the event
+ */
+stopPropagation01: function() {
+    var success;
+    if(checkInitialization(builder, "stopPropagation01") != null) return;
+    var doc;
+    var target;
+    var evt;
+    var preventDefault;
+    var monitor = new EventMonitor();
+    
+    var docRef = null;
+    if (typeof(this.doc) != 'undefined') {
+        docRef = this.doc;
+    }
+
+    doc = load(docRef, "doc", "hc_staff");
+    var plist = doc.getElementsByTagName("p");
+    plist.item(0).addEventListener("foo", function(evt) { evt.stopPropagation(); monitor.handleEvent(evt) }, true);
+    plist.item(0).firstChild.addEventListener("foo", monitor.handleEvent, false);
+	evt = doc.createEvent("Events");
+    evt.initEvent("foo",true,false);
+    preventDefault = plist.item(0).firstChild.dispatchEvent(evt);
+
+    assertSize("atCount",0,monitor.atEvents);
+    assertSize("bubbleCount",0,monitor.bubbledEvents);
+    assertSize("captureCount",1,monitor.capturedEvents);
+},
+
+/*
+ * Calling stopPropagation on an event will prevent all listeners from receiving the event
+ */
+stopPropagation02: function() {
+    var success;
+    if(checkInitialization(builder, "stopPropagation02") != null) return;
+    var doc;
+    var target;
+    var evt;
+    var preventDefault;
+    var monitor = new EventMonitor();
+    
+    var docRef = null;
+    if (typeof(this.doc) != 'undefined') {
+        docRef = this.doc;
+    }
+
+    doc = load(docRef, "doc", "hc_staff");
+
+    var bodyList = doc.getElementsByTagName("body");
+    bodyList.item(0).addEventListener("foo", monitor.handleEvent, false);
+
+    var plist = doc.getElementsByTagName("p");
+    plist.item(0).addEventListener("foo", function(evt) { evt.stopPropagation(); monitor.handleEvent(evt) }, false);
+    plist.item(0).firstChild.addEventListener("foo", monitor.handleEvent, false);
+	evt = doc.createEvent("Events");
+    evt.initEvent("foo",true,false);
+    preventDefault = plist.item(0).firstChild.dispatchEvent(evt);
+
+    assertSize("atCount",1,monitor.atEvents);
+    assertSize("bubbleCount",1,monitor.bubbledEvents);
+    assertSize("captureCount",0,monitor.capturedEvents);
+},
+
+/*
+ * A cancelable event can have its default event disabled
+ */
+preventDefault01: function() {
+    var success;
+    if(checkInitialization(builder, "preventDefault01") != null) return;
+    var doc;
+    var target;
+    var evt;
+    var preventDefault;
+    var monitor = new EventMonitor();
+    
+    var docRef = null;
+    if (typeof(this.doc) != 'undefined') {
+        docRef = this.doc;
+    }
+
+    doc = load(docRef, "doc", "hc_staff");
+
+    var bodyList = doc.getElementsByTagName("body");
+    bodyList.item(0).addEventListener("foo", monitor.handleEvent, true);
+
+    var plist = doc.getElementsByTagName("p");
+    plist.item(0).addEventListener("foo", function(evt) { evt.preventDefault(); monitor.handleEvent(evt) }, false);
+    plist.item(0).firstChild.addEventListener("foo", monitor.handleEvent, false);
+	evt = doc.createEvent("Events");
+    evt.initEvent("foo",true,true);
+    preventDefault = plist.item(0).firstChild.dispatchEvent(evt);
+
+    assertTrue("preventDefault", preventDefault);
+    assertSize("atCount",1,monitor.atEvents);
+    assertSize("bubbleCount",1,monitor.bubbledEvents);
+    assertSize("captureCount",1,monitor.capturedEvents);
+},
+
+/*
+ * A non-cancelable event cannot have its default event disabled
+ */
+preventDefault02: function() {
+    var success;
+    if(checkInitialization(builder, "preventDefault02") != null) return;
+    var doc;
+    var target;
+    var evt;
+    var preventDefault;
+    var monitor = new EventMonitor();
+    
+    var docRef = null;
+    if (typeof(this.doc) != 'undefined') {
+        docRef = this.doc;
+    }
+
+    doc = load(docRef, "doc", "hc_staff");
+
+    var bodyList = doc.getElementsByTagName("body");
+    bodyList.item(0).addEventListener("foo", monitor.handleEvent, true);
+
+    var plist = doc.getElementsByTagName("p");
+    plist.item(0).addEventListener("foo", function(evt) { evt.preventDefault(); monitor.handleEvent(evt) }, false);
+    plist.item(0).firstChild.addEventListener("foo", monitor.handleEvent, false);
+	evt = doc.createEvent("Events");
+    evt.initEvent("foo",true,false);
+    preventDefault = plist.item(0).firstChild.dispatchEvent(evt);
+
+    assertFalse("preventDefault", preventDefault);
+    assertSize("atCount",1,monitor.atEvents);
+    assertSize("bubbleCount",1,monitor.bubbledEvents);
+    assertSize("captureCount",1,monitor.capturedEvents);
+},
+
+
+/*
+ * Only capture listeners in a direct line from target to the document node should receive the event
+ */
+captureEvent02: function() {
+    var success;
+    if(checkInitialization(builder, "captureEvent02") != null) return;
+    var doc;
+    var target;
+    var evt;
+    var preventDefault;
+    var monitor = new EventMonitor();
+    
+    var docRef = null;
+    if (typeof(this.doc) != 'undefined') {
+        docRef = this.doc;
+    }
+
+    doc = load(docRef, "doc", "hc_staff");
+
+    var titleList = doc.getElementsByTagName("title");
+    titleList.item(0).addEventListener("foo", monitor.handleEvent, true);
+
+    var plist = doc.getElementsByTagName("p");
+    plist.item(0).addEventListener("foo", function(evt) { evt.preventDefault(); monitor.handleEvent(evt) }, false);
+    plist.item(0).firstChild.addEventListener("foo", monitor.handleEvent, false);
+	evt = doc.createEvent("Events");
+    evt.initEvent("foo",true,false);
+    preventDefault = plist.item(0).firstChild.dispatchEvent(evt);
+
+    assertFalse("preventDefault", preventDefault);
+    assertSize("atCount",1,monitor.atEvents);
+    assertSize("bubbleCount",1,monitor.bubbledEvents);
+    assertSize("captureCount",0,monitor.capturedEvents);
+},
+
+/*
+ * Only bubble listeners in a direct line from target to the document node should receive the event
+ */
+bubbleEvent02: function() {
+    var success;
+    if(checkInitialization(builder, "bubbleEvent02") != null) return;
+    var doc;
+    var target;
+    var evt;
+    var preventDefault;
+    var monitor = new EventMonitor();
+    
+    var docRef = null;
+    if (typeof(this.doc) != 'undefined') {
+        docRef = this.doc;
+    }
+
+    doc = load(docRef, "doc", "hc_staff");
+
+    var titleList = doc.getElementsByTagName("title");
+    titleList.item(0).addEventListener("foo", monitor.handleEvent, false);
+
+    var plist = doc.getElementsByTagName("p");
+    plist.item(0).addEventListener("foo", function(evt) { evt.preventDefault(); monitor.handleEvent(evt) }, true);
+    plist.item(0).firstChild.addEventListener("foo", monitor.handleEvent, false);
+	evt = doc.createEvent("Events");
+    evt.initEvent("foo",true,false);
+    preventDefault = plist.item(0).firstChild.dispatchEvent(evt);
+
+    assertFalse("preventDefault", preventDefault);
+    assertSize("atCount",1,monitor.atEvents);
+    assertSize("bubbleCount",0,monitor.bubbledEvents);
+    assertSize("captureCount",1,monitor.capturedEvents);
+},
+
+/*
+ * If an event does not bubble, bubble listeners should not receive the event
+ */
+bubbleEvent03: function() {
+    var success;
+    if(checkInitialization(builder, "bubbleEvent03") != null) return;
+    var doc;
+    var target;
+    var evt;
+    var preventDefault;
+    var monitor = new EventMonitor();
+    
+    var docRef = null;
+    if (typeof(this.doc) != 'undefined') {
+        docRef = this.doc;
+    }
+
+    doc = load(docRef, "doc", "hc_staff");
+
+    var bodyList = doc.getElementsByTagName("body");
+    bodyList.item(0).addEventListener("foo", monitor.handleEvent, true);
+
+
+    var plist = doc.getElementsByTagName("p");
+    plist.item(0).addEventListener("foo", function(evt) { evt.preventDefault(); monitor.handleEvent(evt) }, false);
+    plist.item(0).firstChild.addEventListener("foo", monitor.handleEvent, false);
+	evt = doc.createEvent("Events");
+    evt.initEvent("foo",false,false);
+    preventDefault = plist.item(0).firstChild.dispatchEvent(evt);
+
+    assertFalse("preventDefault", preventDefault);
+    assertSize("atCount",1,monitor.atEvents);
+    assertSize("bubbleCount",0,monitor.bubbledEvents);
     assertSize("captureCount",1,monitor.capturedEvents);
 }
 }
